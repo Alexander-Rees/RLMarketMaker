@@ -1,8 +1,8 @@
-# 🧠 RL Market Maker
+# RL Market Maker
 
 A reinforcement learning framework for algorithmic market making using PPO (Proximal Policy Optimization) and baseline strategies.
 
-## 🎯 Overview
+## Overview
 
 This project trains a reinforcement learning agent to act as a market maker in financial markets, learning to quote bid and ask prices to:
 - Earn the bid-ask spread (buy low, sell high)
@@ -11,7 +11,7 @@ This project trains a reinforcement learning agent to act as a market maker in f
 
 The goal is to maximize long-term expected profit while minimizing volatility and drawdowns.
 
-## ⚙️ How It Works
+## How It Works
 
 ### Environment
 - Based on synthetic order-book data (Geometric Brownian Motion + Poisson arrivals)
@@ -33,7 +33,7 @@ The goal is to maximize long-term expected profit while minimizing volatility an
 - **Domain randomization**: Vary volatility, fees, latency per episode
 - **Curriculum learning**: Start easy, ramp up difficulty
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -76,14 +76,14 @@ pytest tests/
 pytest tests/test_env_core.py -v
 ```
 
-## 📊 Baseline Strategies
+## Baseline Strategies
 
 1. **Fixed Spread**: Quotes ±k ticks with inventory cap
 2. **Avellaneda-Stoikov**: Optimal market making with risk aversion
 3. **Inventory Mean Reversion**: Adjusts quotes based on inventory
 4. **Random**: Random actions for comparison
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 RLMarketMaker/
@@ -110,7 +110,7 @@ RLMarketMaker/
 └── requirements.txt             # Dependencies
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Synthetic Data (`configs/synthetic.yaml`)
 ```yaml
@@ -132,7 +132,7 @@ total_timesteps: 1000000
 normalize_observations: true
 ```
 
-## 📈 Metrics
+## Metrics
 
 - **PnL**: Cumulative profit/loss
 - **Sharpe Ratio**: Risk-adjusted returns
@@ -140,7 +140,7 @@ normalize_observations: true
 - **Fill Rate**: Percentage of orders filled
 - **Max Drawdown**: Largest equity decline
 
-## 🧪 Testing
+## Testing
 
 The project includes comprehensive tests:
 - **PnL Invariant**: `cash + inventory * midprice ≈ total PnL`
@@ -149,7 +149,7 @@ The project includes comprehensive tests:
 - **Fill Monotonicity**: Fill probability decreases with distance
 - **Reset Cleanliness**: No state leakage between episodes
 
-## 📝 Usage Examples
+## Usage Examples
 
 ### Basic Training
 ```python
@@ -185,7 +185,7 @@ strategy = FixedSpreadStrategy(
 action = strategy.get_action(observation, market_state)
 ```
 
-## 🔬 Research Applications
+## Research Applications
 
 This framework enables research in:
 - **RL for Finance**: Deep RL applications in algorithmic trading
@@ -193,7 +193,7 @@ This framework enables research in:
 - **Risk Management**: Inventory control and drawdown minimization
 - **Strategy Comparison**: RL vs analytical market making
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -201,17 +201,17 @@ This framework enables research in:
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Stable-Baselines3](https://github.com/DLR-RM/stable-baselines3) for RL algorithms
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) for environment interface
 - Avellaneda & Stoikov for optimal market making theory
 
-## 📚 References
+## References
 
 1. Avellaneda, M., & Stoikov, S. (2008). High-frequency trading in a limit order book.
 2. Schulman, J., et al. (2017). Proximal policy optimization algorithms.
