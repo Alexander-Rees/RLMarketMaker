@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+# But not our env/ directory in the package
+!rlmarketmaker/env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data files
+*.csv
+*.parquet
+*.h5
+*.hdf5
+data/
+*.zip
+# But not our data/ directory in the package
+!rlmarketmaker/data/
+
+# Logs and outputs
+logs/
+*.log
+tensorboard/
+wandb/
+
+# Models and checkpoints
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.zip
+*.pth
+*.pt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+configs/local_*.yaml
+.env

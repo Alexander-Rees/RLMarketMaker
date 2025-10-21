@@ -1,0 +1,21 @@
+# Binance data replay configuration
+
+# Data source
+data_path: "data/binance_btcusdt.parquet"  # Path to preprocessed data
+symbol: "BTCUSDT"
+timeframe: "1s"                           # Resampling frequency
+
+# Preprocessing
+resample_freq: "1s"                       # Target frequency
+min_spread: 0.0001                       # Minimum spread filter
+max_spread: 0.01                         # Maximum spread filter
+
+# Episode parameters
+episode_length: 3600                     # 1 hour episodes
+warmup_steps: 100                        # Steps to skip at episode start
+
+# Domain randomization
+volatility_multiplier: [0.8, 1.2]       # Volatility scaling range
+spread_multiplier: [0.5, 1.5]           # Spread scaling range
+latency_range: [1, 10]                   # Latency range (steps)
+fee_range: [0.0001, 0.001]               # Fee range

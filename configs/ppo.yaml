@@ -1,0 +1,44 @@
+# PPO training configuration
+
+# Algorithm parameters
+learning_rate: 3e-4
+n_steps: 2048
+batch_size: 64
+n_epochs: 10
+gamma: 0.99
+gae_lambda: 0.95
+clip_range: 0.2
+ent_coef: 0.01
+vf_coef: 0.5
+max_grad_norm: 0.5
+
+# Training parameters
+total_timesteps: 1000000
+eval_freq: 10000
+save_freq: 50000
+log_interval: 10
+
+# Environment parameters
+env_id: "MarketMaker-v0"
+normalize_observations: true
+normalize_rewards: false
+
+# Risk controls
+max_inventory: 1000.0           # Maximum absolute inventory
+max_loss_per_episode: 1000.0    # Maximum loss per episode
+kill_switch_threshold: -5000.0  # Kill switch if equity < threshold
+
+# Reward parameters
+lambda_inventory: 0.01          # Inventory penalty coefficient
+transaction_fee: 0.0001        # Per-trade fee (as fraction of notional)
+
+# Curriculum learning
+curriculum: true
+initial_fee_multiplier: 0.1     # Start with 10% of full fees
+final_fee_multiplier: 1.0       # Ramp to full fees
+curriculum_steps: 500000        # Steps to complete curriculum
+
+# Logging
+log_dir: "logs"
+tensorboard_log: "logs/tensorboard"
+verbose: 1
