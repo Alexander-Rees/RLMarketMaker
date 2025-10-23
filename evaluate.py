@@ -84,12 +84,12 @@ def evaluate_agent(agent, env, config: dict, num_episodes: int = 10, seed: int =
             
             episode_reward += reward
             episode_length += 1
-            inventory_history.append(info['inventory'])
+            inventory_history.append(info.get('inventory', 0.0))
             
             done = terminated or truncated
         
         # Calculate episode metrics
-        episode_pnl = info['total_pnl']
+        episode_pnl = info.get('total_pnl', 0.0)
         fill_rate = 0.8  # Placeholder - would need to track actual fills
         max_dd = max(inventory_history) - min(inventory_history) if inventory_history else 0
         

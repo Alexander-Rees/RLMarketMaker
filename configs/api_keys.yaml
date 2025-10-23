@@ -1,0 +1,12 @@
+# API Configuration
+polygon:
+  api_key: "rs7TF6mJkzQyukVtxM6G6HeyG2pqq7sL"
+  rate_limit: 5  # calls per minute
+  base_url: "https://api.polygon.io"
+
+# Data Configuration
+data:
+  symbols: ["AAPL", "MSFT", "GOOGL", "TSLA", "AMZN"]
+  timeframe: "1min"
+  days_back: 30
+  output_dir: "data/polygon"

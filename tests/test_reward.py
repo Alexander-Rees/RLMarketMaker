@@ -166,4 +166,4 @@ class TestFeeCalculator:
         total_fee = self.fee_calc.calculate_fees(trades)
         
         expected = (100.0 * 50.0 + 200.0 * 60.0 + 50.0 * 40.0) * 0.0001
-        assert total_fee == expected, f"Total fee incorrect: {total_fee} != {expected}"
+        assert abs(total_fee - expected) < 1e-10, f"Total fee incorrect: {total_fee} != {expected}"

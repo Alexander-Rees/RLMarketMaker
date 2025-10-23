@@ -108,7 +108,7 @@ class MarketMakerEnv(gym.Env):
         # Add current action to latency queue
         self.latency_queue.append({
             'action': action,
-            'step': self.step_count + self.latency
+            'step': self.step_count + self.latency + 1
         })
         
         # Get next market tick
@@ -191,7 +191,7 @@ class MarketMakerEnv(gym.Env):
                 self._execute_action(action_data['action'])
                 executed_actions.append(i)
         
-        # Remove executed actions
+        # Remove executed actions (in reverse order to maintain indices)
         for i in reversed(executed_actions):
             del self.latency_queue[i]
     

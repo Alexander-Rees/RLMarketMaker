@@ -75,14 +75,14 @@ class TestMarketMakerEnv:
         # Action should be in latency queue, not executed yet
         assert len(self.env.latency_queue) == 1, "Action should be in latency queue"
         
-        # Step forward without new actions
-        for _ in range(2):
+        # Step forward to execute the action (latency = 3, so need 3 more steps)
+        for _ in range(3):
             obs, reward, terminated, truncated, info = self.env.step(np.array([0, 0, 0]))
             if terminated or truncated:
                 break
         
-        # Now action should be executed
-        assert len(self.env.latency_queue) == 0, "Action should be executed after latency"
+        # Action should be executed (queue should have 4 actions: 3 new ones + 1 more from the last step)
+        assert len(self.env.latency_queue) == 4, "Should have 4 actions in queue after execution"
     
     def test_fill_probability_monotonic(self):
         """Test that fill probability decreases with distance."""

@@ -140,6 +140,10 @@ def train_model(config_path: str, seed: int = 42):
         
         eval_env = DummyVecEnv([lambda: eval_env])
         eval_env = VecNormalize(eval_env, norm_obs=True, norm_reward=False)
+    else:
+        # Wrap in DummyVecEnv for SB3 compatibility
+        train_env = DummyVecEnv([lambda: train_env])
+        eval_env = DummyVecEnv([lambda: eval_env])
     
     # Create PPO model
     model = create_ppo_model(train_env, config)
