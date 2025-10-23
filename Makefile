@@ -27,12 +27,17 @@ install:
 # Run training
 train:
 	@echo "Starting RL training..."
-	python train_min.py --config configs/realistic_environment.yaml --seed 42
+	python scripts/training/train_min.py --config configs/realistic_environment.yaml --seed 42
 
 # Run evaluation
 eval:
 	@echo "Running evaluation..."
-	python eval_min.py --checkpoint logs/checkpoints/policy.pt --config configs/realistic_environment.yaml --seed 43
+	python scripts/evaluation/eval_min.py --checkpoint logs/checkpoints/policy.pt --config configs/realistic_environment.yaml --seed 43
+
+# Run replay evaluation
+eval-replay:
+	@echo "Running replay evaluation..."
+	python scripts/evaluation/evaluate_replay.py --config configs/polygon_replay.yaml --checkpoint logs/checkpoints/policy.pt --episodes 10
 
 # Run tests
 test:

@@ -169,14 +169,36 @@ class RealisticMarketMakerEnv(gym.Env):
         # Get new observation
         obs = self._get_observation()
         
+        # Calculate current quotes based on action
+        bid_offset, ask_offset, size_idx = action
+        bid_offset_ticks = bid_offset * 0.5
+        ask_offset_ticks = ask_offset * 0.5
+        
+        bid_quote = self.current_tick.midprice - self.current_tick.spread/2 - bid_offset_ticks
+        ask_quote = self.current_tick.midprice + self.current_tick.spread/2 + ask_offset_ticks
+        
+        # Check for fills (simplified for trace)
+        filled_bid = 0
+        filled_ask = 0
+        if self.last_fill_side == 1:  # Bid fill
+            filled_bid = 1
+        elif self.last_fill_side == -1:  # Ask fill
+            filled_ask = 1
+        
         info = {
             'inventory': self.inventory,
             'cash': self.cash,
             'total_pnl': self.total_pnl,
+            'cumulative_pnl': self.total_pnl,
             'step': self.step_count,
             'episode': self.episode_count,
             'volatility': self.current_volatility,
-            'last_fill_side': self.last_fill_side
+            'last_fill_side': self.last_fill_side,
+            'midprice': self.current_tick.midprice,
+            'bid_quote': bid_quote,
+            'ask_quote': ask_quote,
+            'filled_bid': filled_bid,
+            'filled_ask': filled_ask
         }
         
         return obs, reward, terminated, truncated, info

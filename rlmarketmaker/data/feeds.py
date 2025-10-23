@@ -84,6 +84,64 @@ class SyntheticFeed(Feed):
             )
 
 
+class PolygonReplayFeed(Feed):
+    """Replay feed for historical Polygon data."""
+    
+    def __init__(self, seed: Optional[int] = None):
+        self.rng = np.random.RandomState(seed)
+        self.current_data = None
+        self.current_day = None
+    
+    def reset(self, day: str = None):
+        """Reset to a specific day or random day."""
+        self.current_day = day
+        self.current_data = None
+    
+    def get_env_feed(self, config: Dict[str, Any]) -> Iterator[MarketTick]:
+        """Replay historical Polygon data."""
+        data_path = config.get('data_path', 'data/replay/aapl_replay.parquet')
+        episode_length = config.get('episode_length', 3600)
+        warmup_steps = config.get('warmup_steps', 100)
+        
+        # Load data if not already loaded
+        if self.current_data is None:
+            try:
+                self.current_data = pd.read_parquet(data_path)
+                print(f"Loaded replay data: {len(self.current_data)} steps")
+            except FileNotFoundError:
+                print(f"Data file {data_path} not found, falling back to synthetic data")
+                synthetic_feed = SyntheticFeed(seed=self.rng.randint(0, 2**32))
+                yield from synthetic_feed.get_env_feed(config)
+                return
+        
+        # Domain randomization
+        vol_mult = self.rng.uniform(*config.get('volatility_multiplier', [0.8, 1.2]))
+        spread_mult = self.rng.uniform(*config.get('spread_multiplier', [0.5, 1.5]))
+        
+        # Select random starting point
+        start_idx = self.rng.randint(warmup_steps, len(self.current_data) - episode_length)
+        
+        # Replay data
+        for i in range(episode_length):
+            if start_idx + i >= len(self.current_data):
+                break
+                
+            row = self.current_data.iloc[start_idx + i]
+            
+            # Apply domain randomization
+            midprice = row['midprice'] * vol_mult
+            spread = row['spread'] * spread_mult
+            
+            yield MarketTick(
+                timestamp=row.get('timestamp', i),
+                midprice=midprice,
+                spread=spread,
+                bid_size=row.get('bid_size', 100.0),
+                ask_size=row.get('ask_size', 100.0),
+                trades=row.get('trades', 0)
+            )
+
+
 class BinanceReplayFeed(Feed):
     """Replay feed for historical Binance data."""
     

@@ -1,39 +1,8 @@
-# RL Market Maker
+# RLMarketMaker
 
-A reinforcement learning framework for algorithmic market making using PPO (Proximal Policy Optimization) and baseline strategies.
+A reinforcement learning framework for algorithmic market making with realistic market simulation and historical data replay.
 
-## Overview
-
-This project trains a reinforcement learning agent to act as a market maker in financial markets, learning to quote bid and ask prices to:
-- Earn the bid-ask spread (buy low, sell high)
-- Provide liquidity to other market participants  
-- Control inventory risk (avoid large long/short positions)
-
-The goal is to maximize long-term expected profit while minimizing volatility and drawdowns.
-
-## How It Works
-
-### Environment
-- Based on synthetic order-book data (Geometric Brownian Motion + Poisson arrivals)
-- Each time step provides market state: midprice, spread, volatility, inventory, etc.
-- Probabilistic fill model based on quote distance from best bid/ask
-- Reward: `r = ΔPnL - λ_inv * inventory² - fees`
-
-### Agent (RL Policy)
-- Implemented with Proximal Policy Optimization (PPO) from Stable-Baselines3
-- Discrete action space: [bid_offset, ask_offset, size_idx]
-- Observation space: [mid_returns, vol_estimate, spread, inventory, time_remaining]
-- VecNormalize for stable training
-
-### Training Features
-- **Reproducible**: Seeded random number generators
-- **Config-driven**: YAML configuration files
-- **Risk controls**: Inventory limits, loss caps, kill switches
-- **Latency simulation**: N-step delay for realistic execution
-- **Domain randomization**: Vary volatility, fees, latency per episode
-- **Curriculum learning**: Start easy, ramp up difficulty
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
@@ -50,173 +19,175 @@ source venv/bin/activate
 make install
 ```
 
-### Training (PPO)
+### Training
 
 ```bash
-# Train with minimal PPO (recommended)
+# Train PPO agent on synthetic data
 make train
 
 # Or manually:
-python train_min.py --config configs/realistic_environment.yaml --seed 42
+python scripts/training/train_min.py --config configs/realistic_environment.yaml --seed 42
 ```
 
 ### Evaluation
 
 ```bash
-# Evaluate trained model
-make eval
+# Evaluate on synthetic data
+python scripts/evaluation/eval_min.py --checkpoint logs/checkpoints/policy --episodes 10
 
-# Or manually:
-python eval_min.py --checkpoint logs/checkpoints/policy --episodes 10
+# Evaluate on historical replay data
+python scripts/evaluation/evaluate_replay.py --config configs/polygon_replay.yaml --checkpoint logs/checkpoints/policy.pt --episodes 10
 ```
 
-### Testing
+### Analysis
 
 ```bash
-# Run smoke tests
-make test
+# Generate agent behavior traces
+python scripts/analysis/trace_eval.py --agent ppo --ckpt logs/checkpoints/policy.pt --steps 1000 --seed 123
 
-# Or manually:
-pytest tests/test_min_trainer.py tests/test_env_rollout.py -v
+# Create visualizations
+python scripts/analysis/plot_traces.py
 ```
 
-## Baseline Strategies
-
-1. **Fixed Spread**: Quotes ±k ticks with inventory cap
-2. **Avellaneda-Stoikov**: Optimal market making with risk aversion
-3. **Inventory Mean Reversion**: Adjusts quotes based on inventory
-4. **Random**: Random actions for comparison
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 RLMarketMaker/
-├── configs/                    # Configuration files
-│   ├── synthetic.yaml          # Synthetic data parameters
-│   ├── binance.yaml            # Real data replay config
-│   └── ppo.yaml                # PPO hyperparameters
-├── rlmarketmaker/              # Main package
-│   ├── env/                    # Environment components
-│   │   ├── market_env.py         # Core Gymnasium environment
-│   │   ├── fill_models.py       # Probabilistic fill logic
-│   │   └── reward.py            # Reward calculation
-│   ├── data/                    # Data feeds
-│   │   └── feeds.py             # Synthetic & real data feeds
-│   ├── agents/                  # RL agents & baselines
-│   │   └── baselines.py         # Baseline strategies
-│   └── utils/                   # Utilities
-│       ├── config.py            # Configuration loading
-│       ├── metrics.py           # Performance metrics
-│       └── logging.py           # Logging utilities
-├── tests/                       # Test suite
-├── train.py                     # Training script
-├── evaluate.py                  # Evaluation script
-└── requirements.txt             # Dependencies
+├── rlmarketmaker/           # Core package
+│   ├── agents/              # RL agents and baselines
+│   │   ├── min_ppo.py      # Custom PPO implementation
+│   │   └── baselines.py    # Baseline strategies
+│   ├── data/               # Data feeds and preprocessing
+│   │   ├── feeds.py        # Market data feeds
+│   │   └── preprocess_polygon.py  # Historical data preprocessing
+│   ├── env/                # Market environments
+│   │   ├── realistic_market_env.py  # Realistic simulation
+│   │   ├── replay_market_env.py     # Historical replay
+│   │   ├── fill_models.py           # Order fill models
+│   │   └── enhanced_reward.py       # Reward functions
+│   └── utils/              # Utilities
+│       ├── config.py       # Configuration loading
+│       ├── metrics.py      # Performance metrics
+│       └── logging.py      # Logging utilities
+├── scripts/                # Executable scripts
+│   ├── training/           # Training scripts
+│   ├── evaluation/         # Evaluation scripts
+│   └── analysis/           # Analysis and visualization
+├── configs/                # Configuration files
+│   ├── realistic_environment.yaml  # Realistic market config
+│   ├── polygon_replay.yaml         # Historical replay config
+│   └── ppo_improved.yaml          # PPO hyperparameters
+├── data/                   # Data storage
+│   ├── polygon/            # Historical market data
+│   └── replay/             # Processed replay data
+├── logs/                   # Training logs and results
+│   └── checkpoints/        # Model checkpoints
+├── artifacts/              # Analysis outputs
+│   ├── traces/             # Agent behavior traces
+│   └── plots/              # Visualization plots
+├── notebooks/              # Jupyter notebooks
+│   ├── agent_analysis.ipynb       # Agent behavior analysis
+│   └── visualize_traces.ipynb     # Trace visualization
+└── tests/                  # Test suite
 ```
 
-## Configuration
+## 🎯 Key Features
 
-### Synthetic Data (`configs/synthetic.yaml`)
-```yaml
-mu: 0.0                    # Drift (annualized)
-sigma: 0.2                 # Volatility (annualized)
-initial_price: 100.0      # Starting midprice
-spread_mean: 0.01          # Average spread
-lambda_orders: 10.0        # Poisson rate for market orders
-episode_length: 1000       # Steps per episode
+### Realistic Market Simulation
+- **Adverse Selection**: Market moves against filled orders
+- **Volatility-Aware Fills**: Fill probability decreases with volatility
+- **Enhanced Inventory Costs**: Quadratic and linear inventory penalties
+- **Latency Enforcement**: Realistic order execution delays
+- **Slippage/Execution Price**: Price impact modeling
+
+### Historical Data Replay
+- **Polygon Data Integration**: Real market microstructure data
+- **Domain Randomization**: Robust training across market conditions
+- **Calibrated Fill Models**: Realistic order execution simulation
+- **Multi-Day Evaluation**: Comprehensive performance testing
+
+### RL Agent Training
+- **Custom PPO Implementation**: Library-independent training
+- **Observation Normalization**: Stable learning dynamics
+- **Comprehensive Metrics**: PnL, Sharpe ratio, inventory management
+- **Baseline Comparisons**: Avellaneda-Stoikov, Fixed Spread, Random, Inventory Mean Reversion
+
+## 📊 Performance Results
+
+### Synthetic Environment
+| Agent | Mean PnL | Sharpe Ratio | Fill Rate | Inventory Variance |
+|-------|----------|--------------|-----------|-------------------|
+| **PPO RL** | **28.54** | **0.10** | **0.52** | **77.07** |
+| Avellaneda-Stoikov | 0.00 | 0.00 | 0.00 | 0.00 |
+| Random | -90.87 | -0.31 | 0.00 | 0.00 |
+| Inventory Mean Reversion | -250.21 | -0.89 | 0.00 | 0.00 |
+| Fixed Spread | -265.21 | -0.95 | 0.00 | 0.00 |
+
+### Historical Replay Data
+| Agent | Mean PnL | Sharpe Ratio | Fill Rate | Inventory Variance |
+|-------|----------|--------------|-----------|-------------------|
+| Avellaneda-Stoikov | **5,523.59** | 2.94 | 87.7% | 5,140.63 |
+| **PPO RL** | **4,985.62** | **23.36** | **95.0%** | **3,231.52** |
+| Fixed Spread | 4,784.65 | 15.04 | 91.2% | 4,641.09 |
+| Random | 826.53 | 3.18 | 80.3% | 6,255.38 |
+| Inventory Mean Reversion | 166.43 | 2.53 | 75.7% | 3,849.81 |
+
+## 🔧 Configuration
+
+### Environment Parameters
+- `episode_length`: Number of steps per episode
+- `max_inventory`: Maximum absolute inventory position
+- `tick_size`: Minimum price increment
+- `fee_bps`: Trading fees in basis points
+- `latency_ticks`: Order execution delay
+
+### PPO Hyperparameters
+- `learning_rate`: Policy learning rate
+- `n_steps`: Rollout buffer size
+- `batch_size`: Training batch size
+- `n_epochs`: Policy update epochs
+- `gamma`: Discount factor
+- `gae_lambda`: GAE parameter
+- `clip_range`: PPO clipping parameter
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+make test
+
+# Run specific test categories
+pytest tests/test_env_core.py -v
+pytest tests/test_latency.py -v
+pytest tests/test_reward.py -v
+pytest tests/test_min_trainer.py -v
+pytest tests/test_env_rollout.py -v
 ```
 
-### PPO Training (`configs/ppo.yaml`)
-```yaml
-learning_rate: 3e-4
-n_steps: 2048
-batch_size: 64
-gamma: 0.99
-total_timesteps: 1000000
-normalize_observations: true
-```
+## 📈 Analysis and Visualization
 
-## Metrics
+The project includes comprehensive analysis tools:
 
-- **PnL**: Cumulative profit/loss
-- **Sharpe Ratio**: Risk-adjusted returns
-- **Inventory Variance**: Risk exposure
-- **Fill Rate**: Percentage of orders filled
-- **Max Drawdown**: Largest equity decline
+- **Agent Behavior Traces**: Per-timestep action and market state logging
+- **Performance Metrics**: PnL, Sharpe ratio, inventory management, fill rates
+- **Visualization Notebooks**: Interactive analysis of agent behavior
+- **Baseline Comparisons**: Systematic evaluation against established strategies
 
-## Testing
-
-The project includes comprehensive tests:
-- **PnL Invariant**: `cash + inventory * midprice ≈ total PnL`
-- **Reward Correctness**: `reward = ΔPnL - λ·inv² - fees`
-- **Latency Delay**: Actions delayed by N steps
-- **Fill Monotonicity**: Fill probability decreases with distance
-- **Reset Cleanliness**: No state leakage between episodes
-
-## Usage Examples
-
-### Basic Training
-```python
-from rlmarketmaker.env.market_env import MarketMakerEnv
-from rlmarketmaker.data.feeds import SyntheticFeed
-from rlmarketmaker.utils.config import load_config
-
-# Load configuration
-config = load_config('configs/synthetic.yaml')
-
-# Create environment
-feed = SyntheticFeed(seed=42)
-env = MarketMakerEnv(feed, config, seed=42)
-
-# Train with PPO
-from stable_baselines3 import PPO
-model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=100000)
-```
-
-### Custom Baseline
-```python
-from rlmarketmaker.agents.baselines import FixedSpreadStrategy
-
-# Create fixed spread strategy
-strategy = FixedSpreadStrategy(
-    spread_ticks=2,
-    max_inventory=100.0,
-    inventory_cap=50.0
-)
-
-# Get action
-action = strategy.get_action(observation, market_state)
-```
-
-## Research Applications
-
-This framework enables research in:
-- **RL for Finance**: Deep RL applications in algorithmic trading
-- **Market Microstructure**: Order book dynamics and liquidity provision
-- **Risk Management**: Inventory control and drawdown minimization
-- **Strategy Comparison**: RL vs analytical market making
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
-- [Stable-Baselines3](https://github.com/DLR-RM/stable-baselines3) for RL algorithms
-- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) for environment interface
-- Avellaneda & Stoikov for optimal market making theory
-
-## References
-
-1. Avellaneda, M., & Stoikov, S. (2008). High-frequency trading in a limit order book.
-2. Schulman, J., et al. (2017). Proximal policy optimization algorithms.
-3. Guéant, O., Lehalle, C. A., & Fernandez-Tapia, J. (2013). Dealing with the inventory risk.
+- Built on top of Gymnasium for environment interface
+- Uses PyTorch for neural network implementation
+- Historical data provided by Polygon.io
+- Inspired by Avellaneda-Stoikov optimal market making theory

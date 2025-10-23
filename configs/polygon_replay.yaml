@@ -1,0 +1,40 @@
+# Polygon Replay Environment Configuration
+
+env:
+  # Environment parameters
+  episode_length: 3600  # 1 hour episodes
+  max_inventory: 100.0
+  tick_size: 0.01
+  fee_bps: 1.0  # 1 basis point fee
+  latency_ticks: 1
+  
+  # Fill model parameters (more permissive for testing)
+  fill_alpha: 0.9
+  fill_beta: 0.3
+  
+  # Domain randomization
+  volatility_multiplier: [0.8, 1.2]
+  spread_multiplier: [0.5, 1.5]
+
+feed:
+  # Data feed configuration
+  data_path: "data/replay/aapl_replay.parquet"
+  episode_length: 3600
+  warmup_steps: 100
+
+# PPO training configuration
+ppo:
+  learning_rate: 0.0001
+  n_steps: 2048
+  batch_size: 128
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.005
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  hidden_size: 256
+  eval_freq: 50
+  eval_episodes: 10
+  save_freq: 10000
