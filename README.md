@@ -42,38 +42,42 @@ The goal is to maximize long-term expected profit while minimizing volatility an
 git clone https://github.com/Alexander-Rees/RLMarketMaker.git
 cd RLMarketMaker
 
+# Create virtual environment
+make venv
+source venv/bin/activate
+
 # Install dependencies
-pip install -r requirements.txt
+make install
 ```
 
-### Training
+### Training (PPO)
 
 ```bash
-# Train PPO agent
-python train.py --config configs/ppo.yaml --seed 42
+# Train with minimal PPO (recommended)
+make train
 
-# Train with custom config
-python train.py --config configs/synthetic.yaml --seed 123
+# Or manually:
+python train_min.py --config configs/realistic_environment.yaml --seed 42
 ```
 
 ### Evaluation
 
 ```bash
-# Evaluate all agents
-python evaluate.py --episodes 10 --seed 42
+# Evaluate trained model
+make eval
 
-# Evaluate with trained model
-python evaluate.py --model logs/models/final_model.zip --episodes 20
+# Or manually:
+python eval_min.py --checkpoint logs/checkpoints/policy --episodes 10
 ```
 
 ### Testing
 
 ```bash
-# Run all tests
-pytest tests/
+# Run smoke tests
+make test
 
-# Run specific test
-pytest tests/test_env_core.py -v
+# Or manually:
+pytest tests/test_min_trainer.py tests/test_env_rollout.py -v
 ```
 
 ## Baseline Strategies

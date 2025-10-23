@@ -1,0 +1,44 @@
+# Realistic Market Environment Configuration
+# Designed to eliminate random strategy dominance through realistic market dynamics
+
+# Market dynamics - Realistic parameters
+mu: 0.0                    # No drift (random walk)
+sigma: 0.25                # Moderate volatility
+initial_price: 100.0
+spread_mean: 0.015         # Realistic spread
+spread_vol: 0.005          # Spread volatility
+lambda_orders: 8.0         # Order frequency
+episode_length: 1000
+dt: 0.001
+
+# Realism patches
+adverse_selection_eta: 0.0005      # Adverse selection strength
+volatility_penalty_c: 0.75          # Volatility penalty coefficient
+slippage_coeff: 0.3                # Slippage coefficient
+
+# Domain randomization - Moderate challenge
+volatility_range: [0.2, 0.3]       # Volatility range
+spread_range: [0.01, 0.02]         # Spread range
+
+# Fill model - Realistic
+fill_alpha: 0.7            # Base fill probability
+fill_beta: 3.0             # Distance decay
+volatility_penalty_c: 0.75 # Volatility penalty
+
+# Enhanced risk controls
+max_inventory: 300.0       # Lower max inventory
+max_loss_per_episode: 300.0 # Lower max loss
+kill_switch_threshold: -1000.0 # Earlier kill switch
+
+# Enhanced reward parameters
+lambda_inventory: 0.001    # Quadratic inventory penalty
+kappa_inventory: 0.0001    # Linear inventory penalty
+transaction_fee: 0.0002    # Transaction fee
+volatility_risk_scale: 1.0  # Volatility risk scaling
+
+# Latency enforcement
+latency: 2                 # 2-step latency
+
+# Logging
+log_dir: "logs"
+verbose: 1
