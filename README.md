@@ -2,7 +2,7 @@
 
 A reinforcement learning framework for algorithmic market making with realistic market simulation and historical data replay.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -49,7 +49,7 @@ python scripts/analysis/trace_eval.py --agent ppo --ckpt logs/checkpoints/policy
 python scripts/analysis/plot_traces.py
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 RLMarketMaker/
@@ -91,7 +91,7 @@ RLMarketMaker/
 └── tests/                  # Test suite
 ```
 
-## 🎯 Key Features
+## Key Features
 
 ### Realistic Market Simulation
 - **Adverse Selection**: Market moves against filled orders
@@ -112,7 +112,7 @@ RLMarketMaker/
 - **Comprehensive Metrics**: PnL, Sharpe ratio, inventory management
 - **Baseline Comparisons**: Avellaneda-Stoikov, Fixed Spread, Random, Inventory Mean Reversion
 
-## 📊 Performance Results
+## Performance Results
 
 ### Synthetic Environment
 | Agent | Mean PnL | Sharpe Ratio | Fill Rate | Inventory Variance |
@@ -132,7 +132,7 @@ RLMarketMaker/
 | Random | 826.53 | 3.18 | 80.3% | 6,255.38 |
 | Inventory Mean Reversion | 166.43 | 2.53 | 75.7% | 3,849.81 |
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Parameters
 - `episode_length`: Number of steps per episode
@@ -150,7 +150,7 @@ RLMarketMaker/
 - `gae_lambda`: GAE parameter
 - `clip_range`: PPO clipping parameter
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -164,7 +164,7 @@ pytest tests/test_min_trainer.py -v
 pytest tests/test_env_rollout.py -v
 ```
 
-## 📈 Analysis and Visualization
+## Analysis and Visualization
 
 The project includes comprehensive analysis tools:
 
@@ -173,7 +173,7 @@ The project includes comprehensive analysis tools:
 - **Visualization Notebooks**: Interactive analysis of agent behavior
 - **Baseline Comparisons**: Systematic evaluation against established strategies
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -181,11 +181,11 @@ The project includes comprehensive analysis tools:
 4. Add tests for new functionality
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built on top of Gymnasium for environment interface
 - Uses PyTorch for neural network implementation

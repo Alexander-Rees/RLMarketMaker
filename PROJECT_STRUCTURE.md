@@ -1,6 +1,6 @@
 # RLMarketMaker - Clean Project Structure
 
-## 📁 Directory Organization
+## Directory Organization
 
 ### Core Package (`rlmarketmaker/`)
 - **`agents/`** - RL agents and baseline strategies
@@ -59,7 +59,7 @@
 - `test_reward.py` - Reward function tests
 - `test_min_trainer.py` - PPO trainer tests
 
-## 🧹 Cleanup Summary
+## Cleanup Summary
 
 ### Removed Files
 - **Deprecated configs**: `ppo_simple.yaml`, `ppo_tuned.yaml`, `tuned_environment.yaml`, `balanced.yaml`, `real_aapl.yaml`, `binance.yaml`, `synthetic.yaml`
@@ -80,7 +80,7 @@
 4. **Easy navigation** with descriptive directory names
 5. **Maintainable structure** for future development
 
-## 🚀 Usage
+## Usage
 
 ```bash
 # Training
@@ -98,4 +98,4 @@ python scripts/analysis/plot_traces.py
 make test
 ```
 
-The project is now clean, well-organized, and ready for production use! 🎉
+The project is now clean, well-organized, and ready for production use!
