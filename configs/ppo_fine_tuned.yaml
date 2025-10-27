@@ -1,0 +1,58 @@
+env:
+  feed_type: SyntheticFeed
+  episode_length: 1000
+  max_inventory: 100.0
+  tick_size: 0.01
+  fee_bps: 1.0
+  latency_ticks: 1
+  
+  # Enhanced realism parameters
+  adverse_selection: true
+  volatility_aware_fills: true
+  enhanced_inventory_costs: true
+  slippage_enabled: true
+  
+  # Fill model parameters
+  fill_alpha: 0.8
+  fill_beta: 0.4
+  volatility_penalty: 0.5
+  
+  # Inventory cost parameters
+  inventory_penalty_quadratic: 0.01
+  inventory_penalty_linear: 0.005
+  
+  # Reward parameters
+  reward_scale: 1.0
+  inventory_reward_weight: 0.1
+
+ppo:
+  # Improved learning parameters
+  learning_rate: 0.0001  # Reduced for stability
+  n_steps: 2048  # Increased rollout buffer
+  batch_size: 64  # Smaller batches for better gradients
+  n_epochs: 10  # More epochs per update
+  gamma: 0.99  # Higher discount factor
+  gae_lambda: 0.95  # GAE parameter
+  clip_range: 0.2  # PPO clipping
+  
+  # Value function parameters
+  vf_coef: 0.5  # Value function coefficient
+  ent_coef: 0.01  # Entropy coefficient
+  max_grad_norm: 0.5  # Gradient clipping
+  
+  # Network architecture
+  policy_layers: [64, 64]  # Smaller network for stability
+  value_layers: [64, 64]
+  activation: "tanh"  # More stable than relu
+  
+  # Training parameters
+  total_timesteps: 1000000  # Longer training
+  save_freq: 100000  # Save checkpoints more frequently
+  eval_freq: 50000  # Evaluate more frequently
+  n_eval_episodes: 10
+  
+  # Normalization
+  normalize_observations: true
+  normalize_rewards: true
+  norm_obs_clip: 10.0
+  norm_reward_clip: 10.0

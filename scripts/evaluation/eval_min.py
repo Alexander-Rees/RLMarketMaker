@@ -3,10 +3,14 @@
 
 import argparse
 import os
+import sys
 import numpy as np
 import torch
 from pathlib import Path
 from typing import Dict, Any
+
+# Add project root to path
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from rlmarketmaker.env.realistic_market_env import RealisticMarketMakerEnv
 from rlmarketmaker.data.feeds import SyntheticFeed

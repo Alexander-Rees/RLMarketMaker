@@ -8,11 +8,15 @@ against baseline strategies on historical market data.
 
 import argparse
 import os
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, List
 import json
+
+# Add project root to path
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from rlmarketmaker.env.replay_market_env import ReplayMarketMakerEnv
 from rlmarketmaker.data.feeds import PolygonReplayFeed

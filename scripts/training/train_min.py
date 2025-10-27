@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 import random
 import numpy as np
 import torch
@@ -10,6 +11,9 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, Any
 import time
+
+# Add project root to path
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from rlmarketmaker.env.realistic_market_env import RealisticMarketMakerEnv
 from rlmarketmaker.data.feeds import SyntheticFeed
@@ -109,6 +113,7 @@ def train_minimal_ppo(config_path: str, seed: int = 42):
     """Train using minimal PPO implementation."""
     # Load configuration
     config = load_config(config_path)
+    print(f"Loaded config: {config}")
     
     # Set seeds
     set_seeds(seed)
@@ -122,7 +127,19 @@ def train_minimal_ppo(config_path: str, seed: int = 42):
     
     # Create environment
     print("Creating environment...")
-    feed = SyntheticFeed(seed=seed)
+    
+    # Create feed based on config
+    env_config = config.get('env', {})
+    feed_type = env_config.get('feed_type', 'SyntheticFeed')
+    print(f"Using feed type: {feed_type}")
+    if feed_type == 'PolygonReplayFeed':
+        from rlmarketmaker.data.feeds import PolygonReplayFeed
+        feed = PolygonReplayFeed(seed=seed)
+        print("Created PolygonReplayFeed for historical data training")
+    else:
+        feed = SyntheticFeed(seed=seed)
+        print("Created SyntheticFeed for synthetic data training")
+    
     env = RealisticMarketMakerEnv(feed, config, seed=seed)
     env = RecordEpisodeStats(env)
     
@@ -133,27 +150,28 @@ def train_minimal_ppo(config_path: str, seed: int = 42):
     print(f"State dimension: {state_dim}, Action dimensions: {action_dims}")
     
     # Create PPO trainer
+    ppo_config = config.get('ppo', {})
     trainer = MinPPO(
         state_dim=state_dim,
         action_dims=action_dims,
-        lr=config.get('learning_rate', 0.0003),
-        gamma=config.get('gamma', 0.99),
-        gae_lambda=config.get('gae_lambda', 0.95),
-        clip_range=config.get('clip_range', 0.2),
-        vf_coef=config.get('vf_coef', 0.5),
-        ent_coef=config.get('ent_coef', 0.01),
-        max_grad_norm=config.get('max_grad_norm', 0.5)
+        lr=ppo_config.get('learning_rate', 0.0003),
+        gamma=ppo_config.get('gamma', 0.99),
+        gae_lambda=ppo_config.get('gae_lambda', 0.95),
+        clip_range=ppo_config.get('clip_range', 0.2),
+        vf_coef=ppo_config.get('vf_coef', 0.5),
+        ent_coef=ppo_config.get('ent_coef', 0.01),
+        max_grad_norm=ppo_config.get('max_grad_norm', 0.5)
     )
     
     # Create rollout buffer
-    buffer_size = config.get('n_steps', 2048)
+    buffer_size = ppo_config.get('n_steps', 2048)
     buffer = RolloutBuffer(buffer_size, state_dim, action_dims)
     
     # Training parameters
-    total_timesteps = config.get('total_timesteps', 100000)
-    n_epochs = config.get('n_epochs', 4)
-    batch_size = config.get('batch_size', 64)
-    save_freq = config.get('save_freq', 10000)
+    total_timesteps = ppo_config.get('total_timesteps', 100000)
+    n_epochs = ppo_config.get('n_epochs', 4)
+    batch_size = ppo_config.get('batch_size', 64)
+    save_freq = ppo_config.get('save_freq', 10000)
     
     print(f"Starting minimal PPO training for {total_timesteps} timesteps...")
     print(f"Model will be saved to {checkpoint_dir}")

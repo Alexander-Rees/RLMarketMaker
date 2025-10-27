@@ -1,0 +1,53 @@
+env:
+  feed_type: PolygonReplayFeed
+  data_path: data/replay/aapl_replay.parquet
+  episode_length: 1000
+  warmup_steps: 100
+  max_inventory: 100.0
+  tick_size: 0.01
+  fee_bps: 1.0
+  latency_ticks: 1
+  
+  # Domain randomization for robustness
+  volatility_multiplier: [0.8, 1.2]
+  spread_multiplier: [0.5, 1.5]
+  
+  # Fill model parameters (calibrated for historical data)
+  fill_alpha: 0.9
+  fill_beta: 0.3
+  
+  # Simplified reward for historical data
+  reward_scale: 1.0
+  inventory_reward_weight: 0.05
+
+ppo:
+  # Higher learning rate for historical data complexity
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 8
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  
+  # Value function parameters
+  vf_coef: 0.5
+  ent_coef: 0.01
+  max_grad_norm: 0.5
+  
+  # Larger network for historical data complexity
+  policy_layers: [128, 128, 64]
+  value_layers: [128, 128, 64]
+  activation: "relu"
+  
+  # Training parameters
+  total_timesteps: 2000000  # Longer training for historical data
+  save_freq: 200000
+  eval_freq: 100000
+  n_eval_episodes: 10
+  
+  # Normalization
+  normalize_observations: true
+  normalize_rewards: true
+  norm_obs_clip: 10.0
+  norm_reward_clip: 10.0
