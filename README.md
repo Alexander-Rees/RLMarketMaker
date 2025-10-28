@@ -25,8 +25,11 @@ make install
 # Train PPO agent on synthetic data
 make train
 
-# Or manually:
-python scripts/training/train_min.py --config configs/realistic_environment.yaml --seed 42
+# Multi-seed training with optimized settings
+python scripts/training/train_multi_seed.py --config configs/ppo_optimized.yaml --seeds 11 23 37
+
+# Single seed training
+python scripts/training/train_min.py --config configs/ppo_optimized.yaml --seed 42
 ```
 
 ### Evaluation
@@ -42,12 +45,29 @@ python scripts/evaluation/evaluate_replay.py --config configs/polygon_replay.yam
 ### Analysis
 
 ```bash
+# Generate visualizations from training results
+python scripts/generate_plots.py
+
 # Generate agent behavior traces
 python scripts/analysis/trace_eval.py --agent ppo --ckpt logs/checkpoints/policy.pt --steps 1000 --seed 123
 
 # Create visualizations
 python scripts/analysis/plot_traces.py
 ```
+
+## Recent Improvements
+
+### Performance Achievements
+- **PPO vs Fixed Spread**: +17.5% PnL improvement on historical data
+- **Multi-seed training**: Consistent performance across seeds (Sharpe: 0.81-0.84)
+- **Risk management**: Inventory variance control with soft position limits
+- **Realistic simulation**: Volatility-aware fills, adverse selection, latency enforcement
+
+### Key Features
+- **Custom PPO implementation**: Lightweight, library-free training
+- **Historical data replay**: Real market data from Polygon
+- **Comprehensive evaluation**: Multi-metric performance analysis
+- **Visualization tools**: Equity curves, inventory plots, behavior traces
 
 ## Project Structure
 

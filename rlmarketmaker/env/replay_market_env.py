@@ -248,15 +248,15 @@ class ReplayMarketMakerEnv(gym.Env):
     
     def _calculate_fill_probability(self, distance_ticks: float, side: str) -> float:
         """Calculate fill probability based on distance and market conditions."""
-        # Simplified fill model for testing
+        # More realistic fill model - much lower probabilities
         if distance_ticks == 0:
-            return 0.8  # High probability at touch
+            return 0.15  # Only 15% chance at touch (realistic)
         elif distance_ticks <= 1:
-            return 0.4  # Medium probability close to touch
+            return 0.05  # Low probability close to touch
         elif distance_ticks <= 2:
-            return 0.2  # Lower probability further away
+            return 0.02  # Very low probability 2 ticks away
         else:
-            return 0.1  # Low probability far away
+            return 0.01  # Minimal probability far away
     
     def _process_fill(self, side: str, price: float, size: float):
         """Process a filled order."""

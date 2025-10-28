@@ -1,0 +1,82 @@
+# Optimized PPO Configuration for Better Performance
+# Key changes: Higher fill probabilities to enable profitable trading
+
+# Market dynamics
+mu: 0.0
+sigma: 0.25
+initial_price: 100.0
+spread_mean: 0.015
+spread_vol: 0.005
+lambda_orders: 8.0
+episode_length: 1000
+dt: 0.001
+
+# Reduced realism patches to make environment more learnable
+adverse_selection_eta: 0.0002      # Reduced adverse selection
+volatility_penalty_c: 0.5            # Reduced volatility penalty
+slippage_coeff: 0.1                  # Reduced slippage
+
+# Domain randomization
+volatility_range: [0.2, 0.3]
+spread_range: [0.01, 0.02]
+
+# INCREASED fill probabilities to enable profitable trading
+# This is the KEY fix - higher alpha, lower beta, lower volatility penalty
+fill_alpha: 0.9                      # Higher base fill probability (was 0.7)
+fill_beta: 1.5                       # Lower decay rate (was 3.0) - fills stay high longer
+volatility_penalty_c: 0.3            # Much lower volatility penalty (was 0.75)
+
+# Enhanced risk controls
+max_inventory: 300.0
+max_loss_per_episode: 300.0
+kill_switch_threshold: -1000.0
+
+# Reward parameters - tighter risk controls
+lambda_inventory: 0.005              # Stronger quadratic penalty for inventory control
+kappa_inventory: 0.0001              # Linear inventory penalty
+transaction_fee: 0.0002
+volatility_risk_scale: 1.0
+
+# Soft position limits
+position_limit_threshold: 25        # Soft limit at 25 units
+position_limit_coeff: 0.5           # Penalty coefficient for exceeding limit
+
+# Latency enforcement - reduced for faster feedback
+latency: 1                           # Lower latency (was 2)
+
+# Logging
+log_dir: "logs"
+verbose: 1
+
+ppo:
+  # PPO settings with constant learning rate
+  learning_rate: 0.0003              # Constant learning rate (no decay)
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 3                        # Fewer epochs to prevent overfitting
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  
+  # Value function parameters
+  vf_coef: 0.5
+  ent_coef: 0.006                    # Reduced entropy for exploration
+  max_grad_norm: 0.5
+  
+  # Network architecture
+  policy_layers: [128, 128, 64]
+  value_layers: [128, 128, 64]
+  activation: "relu"
+  
+  # Training parameters
+  total_timesteps: 1000000           # Extended training time
+  save_freq: 100000
+  eval_freq: 50000
+  n_eval_episodes: 10
+  early_stop: 3                      # Early stop after 3 stagnant evals
+  
+  # Normalization
+  normalize_observations: true
+  normalize_rewards: true
+  norm_obs_clip: 10.0
+  norm_reward_clip: 10.0

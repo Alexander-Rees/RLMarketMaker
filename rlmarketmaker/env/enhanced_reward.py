@@ -37,6 +37,10 @@ class EnhancedRewardCalculator:
         # Volatility-aware risk scaling
         self.volatility_risk_scale = config.get('volatility_risk_scale', 1.0)
         
+        # Soft position limits
+        self.position_limit_threshold = config.get('position_limit_threshold', 25)
+        self.position_limit_coeff = config.get('position_limit_coeff', 0.5)
+        
         # Track episode state
         self.episode_pnl = 0.0
         self.episode_fees = 0.0
@@ -90,6 +94,12 @@ class EnhancedRewardCalculator:
         # Apply inventory penalties with volatility scaling
         reward -= inventory_quad_penalty * volatility_scale
         reward -= inventory_linear_penalty * volatility_scale
+        
+        # Soft position limit penalty
+        position_limit_threshold = getattr(self, 'position_limit_threshold', 25)
+        position_limit_coeff = getattr(self, 'position_limit_coeff', 0.5)
+        over_limit = max(0, abs(inventory) - position_limit_threshold)
+        reward -= position_limit_coeff * (over_limit ** 2)
         
         # Transaction fees
         if trade_size > 0:
