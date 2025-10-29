@@ -16,6 +16,7 @@ from rlmarketmaker.env.realistic_market_env import RealisticMarketMakerEnv
 from rlmarketmaker.data.feeds import SyntheticFeed
 from rlmarketmaker.utils.config import load_config
 from rlmarketmaker.agents.min_ppo import MinPPO
+from rlmarketmaker.utils.io import append_csv_row
 
 
 def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10, seed: int = 42):
@@ -151,8 +152,7 @@ def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10,
     print(f"   Inv Var Target: {inv_var:.2f} <= {target_inv_var:.2f} ({'✅' if inv_var <= target_inv_var else '❌'})")
     print(f"   Overall: {'🎉 MEETS ALL TARGETS' if meets_targets else '⚠️ MISSING TARGETS'}")
     
-    # Save compact summary
-    import pandas as pd
+    # Save compact summary using io helpers
     summary = {
         'lambda': lambda_val,
         'H': H_val,
@@ -164,16 +164,9 @@ def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10,
         'meets_targets': meets_targets
     }
     
-    summary_path = Path("artifacts/eval_summary.csv")
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if summary_path.exists():
-        df = pd.read_csv(summary_path)
-        df = pd.concat([df, pd.DataFrame([summary])], ignore_index=True)
-    else:
-        df = pd.DataFrame([summary])
-    
-    df.to_csv(summary_path, index=False)
+    summary_path = "artifacts/eval_summary.csv"
+    header_order = ['lambda', 'H', 'seed', 'pnl', 'sharpe', 'inv_var', 'fill_rate', 'meets_targets']
+    append_csv_row(summary_path, summary, header_order)
     print(f"   Summary saved to: {summary_path}")
     
     return {

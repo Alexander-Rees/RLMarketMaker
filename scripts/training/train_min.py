@@ -8,6 +8,8 @@ import random
 import numpy as np
 import torch
 import pandas as pd
+import yaml
+import hashlib
 from pathlib import Path
 from typing import Dict, Any
 import time
@@ -19,6 +21,7 @@ from rlmarketmaker.env.realistic_market_env import RealisticMarketMakerEnv
 from rlmarketmaker.data.feeds import SyntheticFeed
 from rlmarketmaker.utils.config import load_config
 from rlmarketmaker.agents.min_ppo import MinPPO, RolloutBuffer
+from rlmarketmaker.utils.io import write_json, append_csv_row, ensure_dir
 
 
 def set_seeds(seed: int):
@@ -256,15 +259,55 @@ def train_minimal_ppo(config_path: str, seed: int = 42):
     final_checkpoint = checkpoint_dir / 'policy'
     trainer.save(str(final_checkpoint))
     
-    # Save CSV
+    # Compute final metrics
+    final_metrics = {}
     if csv_data:
         df = pd.DataFrame(csv_data)
         df.to_csv(csv_path, index=False)
-        print(f"Metrics saved to {csv_path}")
+        
+        # Compute aggregate metrics
+        if len(df) > 0:
+            final_metrics = {
+                'mean_pnl': float(df['pnl'].mean()) if 'pnl' in df.columns else 0.0,
+                'mean_sharpe': float(df['sharpe'].mean()) if 'sharpe' in df.columns else 0.0,
+                'mean_fill_rate': float(df['fill_rate'].mean()) if 'fill_rate' in df.columns else 0.0,
+                'mean_inv_var': float(df['inv_var'].mean()) if 'inv_var' in df.columns else 0.0,
+                'mean_max_dd': float(df['max_dd'].mean()) if 'max_dd' in df.columns else 0.0,
+                'total_timesteps': total_timesteps,
+                'seed': seed,
+                'config_path': str(config_path),
+                'checkpoint_path': str(final_checkpoint)
+            }
+            
+            # Compute config hash for reproducibility
+            try:
+                with open(config_path, 'r') as f:
+                    config_str = f.read()
+                    config_hash = hashlib.md5(config_str.encode()).hexdigest()[:8]
+                    final_metrics['config_hash'] = config_hash
+            except:
+                pass
+    
+    # Save metrics.json
+    if final_metrics:
+        metrics_path = checkpoint_dir / 'metrics.json'
+        write_json(str(metrics_path), final_metrics)
+    
+    # Save config snapshot
+    try:
+        config_snapshot_path = checkpoint_dir / 'run_config.yaml'
+        ensure_dir(str(config_snapshot_path))
+        with open(config_snapshot_path, 'w') as f:
+            yaml.dump(config, f)
+    except Exception as e:
+        print(f"Warning: Could not save config snapshot: {e}")
     
     print(f"Training completed!")
     print(f"Final model saved to: {final_checkpoint}")
-    print(f"Metrics saved to: {csv_path}")
+    if csv_data:
+        print(f"Metrics saved to: {csv_path}")
+    if final_metrics:
+        print(f"Final metrics saved to: {checkpoint_dir / 'metrics.json'}")
     
     return trainer, final_checkpoint
 
