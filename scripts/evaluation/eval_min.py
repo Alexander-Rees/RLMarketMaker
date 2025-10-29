@@ -23,6 +23,10 @@ def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10,
     # Load configuration
     config = load_config(config_path)
     
+    # Set seeds
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    
     # Create environment
     print("Creating environment...")
     feed = SyntheticFeed(seed=seed)
@@ -116,13 +120,61 @@ def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10,
     mean_inventory = np.mean(episode_inventories)
     inv_var = np.var(episode_inventories)
     
+    # Extract config parameters for display
+    lambda_val = config.get('lambda_inventory', 'N/A')
+    H_val = config.get('position_limit_threshold', 'N/A')
+    
     print(f"\n📊 Evaluation Results:")
+    print(f"   Config: λ={lambda_val}, H={H_val}, seed={seed}")
     print(f"   Mean Reward: {mean_reward:.2f} ± {std_reward:.2f}")
     print(f"   Mean PnL: {mean_pnl:.2f} ± {std_pnl:.2f}")
     print(f"   Sharpe Ratio: {sharpe:.2f}")
     print(f"   Mean Fill Rate: {mean_fill_rate:.2f}")
     print(f"   Mean Inventory: {mean_inventory:.2f}")
     print(f"   Inventory Variance: {inv_var:.2f}")
+    
+    # Check targets
+    baseline_pnl = 1407.43  # From previous multi-seed baseline
+    target_pnl = 0.9 * baseline_pnl
+    target_sharpe = 2.0
+    target_inv_var = 6000.0
+    
+    meets_targets = (
+        mean_pnl >= target_pnl and 
+        sharpe >= target_sharpe and 
+        inv_var <= target_inv_var
+    )
+    
+    print(f"\n🎯 Target Analysis:")
+    print(f"   PnL Target: {mean_pnl:.2f} >= {target_pnl:.2f} ({'✅' if mean_pnl >= target_pnl else '❌'})")
+    print(f"   Sharpe Target: {sharpe:.2f} >= {target_sharpe:.2f} ({'✅' if sharpe >= target_sharpe else '❌'})")
+    print(f"   Inv Var Target: {inv_var:.2f} <= {target_inv_var:.2f} ({'✅' if inv_var <= target_inv_var else '❌'})")
+    print(f"   Overall: {'🎉 MEETS ALL TARGETS' if meets_targets else '⚠️ MISSING TARGETS'}")
+    
+    # Save compact summary
+    import pandas as pd
+    summary = {
+        'lambda': lambda_val,
+        'H': H_val,
+        'seed': seed,
+        'pnl': mean_pnl,
+        'sharpe': sharpe,
+        'inv_var': inv_var,
+        'fill_rate': mean_fill_rate,
+        'meets_targets': meets_targets
+    }
+    
+    summary_path = Path("artifacts/eval_summary.csv")
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if summary_path.exists():
+        df = pd.read_csv(summary_path)
+        df = pd.concat([df, pd.DataFrame([summary])], ignore_index=True)
+    else:
+        df = pd.DataFrame([summary])
+    
+    df.to_csv(summary_path, index=False)
+    print(f"   Summary saved to: {summary_path}")
     
     return {
         'mean_reward': mean_reward,
@@ -132,7 +184,8 @@ def evaluate_model(checkpoint_path: str, config_path: str, n_episodes: int = 10,
         'sharpe': sharpe,
         'mean_fill_rate': mean_fill_rate,
         'mean_inventory': mean_inventory,
-        'inv_var': inv_var
+        'inv_var': inv_var,
+        'meets_targets': meets_targets
     }
 
 

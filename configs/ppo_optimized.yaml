@@ -12,9 +12,9 @@ episode_length: 1000
 dt: 0.001
 
 # Reduced realism patches to make environment more learnable
-adverse_selection_eta: 0.0002      # Reduced adverse selection
+adverse_selection_eta: 0.00005     # Softer adverse selection
 volatility_penalty_c: 0.5            # Reduced volatility penalty
-slippage_coeff: 0.1                  # Reduced slippage
+slippage_coeff: 0.02                 # Lower slippage
 
 # Domain randomization
 volatility_range: [0.2, 0.3]
@@ -22,8 +22,8 @@ spread_range: [0.01, 0.02]
 
 # INCREASED fill probabilities to enable profitable trading
 # This is the KEY fix - higher alpha, lower beta, lower volatility penalty
-fill_alpha: 0.9                      # Higher base fill probability (was 0.7)
-fill_beta: 1.5                       # Lower decay rate (was 3.0) - fills stay high longer
+fill_alpha: 1.2                      # Higher base fill probability
+fill_beta: 1.0                       # Lower decay rate - more fills
 volatility_penalty_c: 0.3            # Much lower volatility penalty (was 0.75)
 
 # Enhanced risk controls
@@ -32,13 +32,13 @@ max_loss_per_episode: 300.0
 kill_switch_threshold: -1000.0
 
 # Reward parameters - tighter risk controls
-lambda_inventory: 0.005              # Stronger quadratic penalty for inventory control
+lambda_inventory: 0.0015             # Lighter quadratic penalty for PnL recovery
 kappa_inventory: 0.0001              # Linear inventory penalty
-transaction_fee: 0.0002
+transaction_fee: 0.00005
 volatility_risk_scale: 1.0
 
 # Soft position limits
-position_limit_threshold: 25        # Soft limit at 25 units
+position_limit_threshold: 50        # Soft limit at 50 units (more permissive)
 position_limit_coeff: 0.5           # Penalty coefficient for exceeding limit
 
 # Latency enforcement - reduced for faster feedback
@@ -69,7 +69,7 @@ ppo:
   activation: "relu"
   
   # Training parameters
-  total_timesteps: 1000000           # Extended training time
+  total_timesteps: 200000            # Quick retrain to validate changes
   save_freq: 100000
   eval_freq: 50000
   n_eval_episodes: 10

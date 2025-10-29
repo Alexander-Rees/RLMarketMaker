@@ -1,44 +1,73 @@
-# Improved PPO configuration for better training
 env:
-  # Market parameters
-  initial_price: 100.0
-  volatility: 0.02
-  drift: 0.0
-  spread_mean: 0.01
-  spread_std: 0.005
+  feed_type: PolygonReplayFeed
+  data_path: data/replay/aapl_replay.parquet
+  episode_length: 1000
+  warmup_steps: 100
+  max_inventory: 300.0
+  tick_size: 0.01
+  fee_bps: 1.0
+  latency_ticks: 1
+  volatility_multiplier: [0.8, 1.2]
+  spread_multiplier: [0.5, 1.5]
   
   # Fill model parameters
-  fill_beta: 2.0
-  fill_alpha: 0.1
-  
-  # Reward parameters
-  inventory_penalty: 0.01
-  transaction_cost: 0.001
-  
-  # Episode parameters
-  max_steps: 1000
-  episode_length: 1000
-  
-  # Realism parameters
-  adverse_selection: true
-  volatility_aware_fills: true
-  enhanced_inventory_costs: true
-  latency_steps: 2
-  slippage_factor: 0.1
+  fill_alpha: 0.9
+  fill_beta: 1.5
+  volatility_penalty_c: 0.3
+  adverse_selection_eta: 0.0002
+  slippage_coeff: 0.1
 
-# PPO hyperparameters
-learning_rate: 0.0001  # Lower learning rate for stability
-n_steps: 4096          # Larger rollout buffer
-batch_size: 128        # Larger batch size
-n_epochs: 8            # More epochs per update
-gamma: 0.995           # Higher discount factor
-gae_lambda: 0.98       # Higher GAE lambda
-clip_range: 0.15       # Smaller clip range for stability
-vf_coef: 0.5          # Value function coefficient
-ent_coef: 0.02        # Higher entropy coefficient for exploration
-max_grad_norm: 0.5    # Gradient clipping
+# Risk controls
+max_inventory: 300.0
+max_loss_per_episode: 300.0
+kill_switch_threshold: -1000.0
 
-# Training parameters
-total_timesteps: 500000  # Longer training
-save_freq: 25000         # Save checkpoints more frequently
+# Adaptive reward parameters
+lambda_inventory: 0.0025              # Base inventory penalty
+volatility_alpha: 0.3                 # Volatility scaling factor
+kappa_multiplier: 3.0                  # Soft limit quadratic penalty multiplier
+tau_multiplier: 0.5                    # Soft limit linear penalty multiplier
+position_limit_threshold: 30           # Soft threshold H
+transaction_fee: 0.0002
+
+# Logging
 log_dir: "logs"
+verbose: 1
+
+ppo:
+  # PPO settings with learning rate decay
+  learning_rate: 0.0003               # Initial learning rate
+  learning_rate_decay: 0.0001          # Final learning rate (linear decay)
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 4
+  gamma: 0.99                        # Lower discount factor to prevent overflow
+  gae_lambda: 0.95
+  clip_range: 0.2
+  
+  # Value function parameters
+  vf_coef: 0.5
+  ent_coef: 0.01                      # Initial entropy coefficient
+  ent_coef_decay: 0.005               # Final entropy coefficient
+  max_grad_norm: 0.5
+  
+  # Network architecture
+  policy_layers: [128, 128, 64]
+  value_layers: [128, 128, 64]
+  activation: "relu"
+  
+  # Training parameters
+  total_timesteps: 500000             # Training steps
+  save_freq: 100000
+  eval_freq: 50000
+  n_eval_episodes: 10
+  early_stop: 3
+  
+  # KL early stopping
+  target_kl: 0.1
+  
+  # Normalization
+  normalize_observations: true
+  normalize_rewards: true
+  norm_obs_clip: 10.0
+  norm_reward_clip: 10.0

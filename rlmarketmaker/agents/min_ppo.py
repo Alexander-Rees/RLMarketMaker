@@ -172,7 +172,12 @@ class RolloutBuffer:
                 next_value = self.values[t + 1]
             
             delta = self.rewards[t] + gamma * next_value * next_non_terminal - self.values[t]
-            advantages[t] = last_advantage = delta + gamma * gae_lambda * next_non_terminal * last_advantage
+            
+            # Clip advantages to prevent overflow
+            advantage = delta + gamma * gae_lambda * next_non_terminal * last_advantage
+            advantage = np.clip(advantage, -1000.0, 1000.0)
+            
+            advantages[t] = last_advantage = advantage
         
         self.advantages = advantages
         self.returns = advantages + self.values[:self.size]
@@ -241,10 +246,19 @@ class MinPPO:
                     log_prob.squeeze(0).cpu().numpy(), 
                     value.squeeze(0).cpu().numpy())
     
+    def get_value(self, state):
+        """Get value estimate for state."""
+        state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device)
+        _, value = self.policy(state_tensor)
+        return value.squeeze(0).detach().cpu().numpy()
+    
     def update(self, buffer: RolloutBuffer, epochs: int = 4, batch_size: int = 64):
         """Update policy using PPO."""
         # Compute GAE
         buffer.compute_gae(self.gamma, self.gae_lambda)
+        
+        # Track KL divergence for early stopping
+        kl_div = 0.0
         
         # Normalize advantages
         advantages = buffer.advantages[:buffer.size]
@@ -278,6 +292,9 @@ class MinPPO:
                 new_log_probs_sum = new_log_probs.sum(dim=-1)
                 ratios = torch.exp(new_log_probs_sum - old_log_probs_sum)
                 
+                # Compute KL divergence for early stopping
+                kl_div = (old_log_probs_sum - new_log_probs_sum).mean()
+                
                 # Compute losses
                 surr1 = ratios * advantages
                 surr2 = torch.clamp(ratios, 1 - self.clip_range, 1 + self.clip_range) * advantages
@@ -304,7 +321,8 @@ class MinPPO:
             'actor_loss': actor_loss.item(),
             'value_loss': value_loss.item(),
             'entropy_loss': entropy_loss.item(),
-            'total_loss': total_loss.item()
+            'total_loss': total_loss.item(),
+            'kl_div': kl_div.item()
         }
     
     def save(self, path: str):
