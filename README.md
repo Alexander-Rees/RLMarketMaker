@@ -18,34 +18,34 @@ A reinforcement learning framework for algorithmic market making with realistic 
 ```mermaid
 flowchart LR
   subgraph Data
-    A[Raw Historical Data\n(Binance L1/L2, Trades)]
-    B[Preprocess & Feature Build\n(Parquet @ fixed Δt)]
+    A["Raw Historical Data<br/>(Binance L1/L2, Trades)"]
+    B["Preprocess & Feature Build<br/>(Parquet at fixed delta t)"]
   end
 
   subgraph Environment
-    C[Replay Feed\n(ts, mid, spread, depth, vol)]
-    D[Realistic Execution Model\nfills = f(offset, vol, depth, latency, fees, slippage, adverse sel.)]
-    E[Reward Shaping\nΔPnL - λ·inv² - κ·|inv| - fees]
+    C["Replay Feed<br/>(ts, mid, spread, depth, vol)"]
+    D["Realistic Execution Model<br/>fills = f(offset, vol, depth, latency, fees, slippage)"]
+    E["Reward Shaping<br/>delta PnL minus lambda inv squared minus kappa inv minus fees"]
   end
 
   subgraph Agent
-    F[Policy (Actor)\nMLP → bid/ask offsets]
-    G[Value (Critic)\nV(s)]
-    H[Rollout Buffer\n(s,a,r,done,adv)]
-    I[PPO Update\n(clipped objective, GAE, entropy, KL)]
+    F["Policy Actor<br/>MLP to bid/ask offsets"]
+    G["Value Critic<br/>V(s)"]
+    H["Rollout Buffer<br/>(s,a,r,done,adv)"]
+    I["PPO Update<br/>(clipped objective, GAE, entropy, KL)"]
   end
 
   subgraph Pipeline
-    J[Config (YAML)]
-    K[Training CLI\ntrain_min.py]
-    L[Backtest CLI\nbacktest.py]
-    M[Evaluation\neval_min.py]
-    N[Benchmark\nbenchmark_env.py]
+    J["Config YAML"]
+    K["Training CLI train_min.py"]
+    L["Backtest CLI backtest.py"]
+    M["Evaluation eval_min.py"]
+    N["Benchmark benchmark_env.py"]
   end
 
   A --> B --> C --> D --> E
   C --> D
-  D -->|state, reward| F
+  D -->|"state, reward"| F
   F -->|actions| D
   F --> H
   G --> H
@@ -55,7 +55,7 @@ flowchart LR
   J --> M
   C --> L
   C --> M
-  K -->|checkpoints, metrics| O[Artifacts\n(checkpoints/, metrics.json, traces.csv)]
+  K -->|checkpoints, metrics| O["Artifacts<br/>(checkpoints/, metrics.json, traces.csv)"]
   L --> O
   M --> O
   N --> O
